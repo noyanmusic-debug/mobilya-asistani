@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#171714">
+<title>Mobilya Asistanı | Ürün ve Katalog Yönetimi</title>
+<style>
+:root{--ink:#171714;--muted:#77756e;--paper:#f6f3ec;--white:#fffefa;--gold:#b89a62;--line:#e6e0d4;--green:#536b55}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.5 Inter,Arial,sans-serif}
+header{background:var(--ink);color:#fff;padding:20px max(22px,calc((100% - 1180px)/2));display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{font-size:18px;letter-spacing:.16em;font-weight:700}.brand span{color:var(--gold)}header small{color:#c9c4b8;letter-spacing:.08em}
+main{max-width:1180px;margin:auto;padding:30px 22px 60px}.hero{background:linear-gradient(120deg,#201f1b,#343128);color:white;padding:34px;border-radius:18px;display:grid;grid-template-columns:1.4fr .6fr;gap:20px;align-items:center}
+.eyebrow{color:#d2b77e;letter-spacing:.18em;text-transform:uppercase;font-size:11px;font-weight:700}.hero h1{font-size:clamp(30px,5vw,52px);line-height:1.05;margin:12px 0}.hero p{color:#dedbd3;max-width:600px}.hero-mark{border:1px solid #74684e;border-radius:50%;width:170px;height:170px;display:grid;place-items:center;margin:auto;color:#d2b77e;font-size:54px}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}button,.button{border:0;border-radius:8px;padding:11px 16px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block}
+.primary{background:var(--gold);color:#171714}.secondary{background:#fff;color:#171714}.dark{background:#24231f;color:white}.danger{background:#f4e6e3;color:#8a3027}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0}.stat,.panel{background:var(--white);border:1px solid var(--line);border-radius:14px;padding:18px}.stat b{font-size:25px;display:block}.stat span{color:var(--muted);font-size:13px}
+.layout{display:grid;grid-template-columns:360px 1fr;gap:18px;align-items:start}.panel h2{font-size:19px;margin:0 0 15px}.field{margin:12px 0}.field label{display:block;font-size:12px;font-weight:700;margin-bottom:6px;color:#5c594f}.field input,.field textarea,.field select{width:100%;border:1px solid var(--line);border-radius:8px;padding:11px;background:#fffefa;font:inherit;color:var(--ink)}.field textarea{min-height:72px;resize:vertical}.field small{color:var(--muted)}
+.upload{border:1px dashed #c9b98e;border-radius:10px;padding:14px;background:#fbf8f0}.product-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.product{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}.product img{width:100%;height:170px;object-fit:cover;background:#ece8df}.product .info{padding:12px}.product h3{margin:0 0 4px;font-size:16px}.code{font-size:11px;color:var(--muted);letter-spacing:.08em}.price{font-weight:700;color:#8c7142;margin-top:8px}.empty{border:1px dashed #c9c1b2;padding:30px;text-align:center;border-radius:12px;color:var(--muted);grid-column:1/-1}
+.notice{margin-top:18px;background:#efeadf;border-left:3px solid var(--gold);padding:13px 15px;border-radius:6px;color:#5e594e;font-size:13px}
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}.toolbar p{margin:0;color:var(--muted);font-size:13px}
+footer{max-width:1180px;margin:auto;padding:0 22px 35px;color:var(--muted);font-size:12px}
+@media(max-width:800px){.hero{grid-template-columns:1fr}.hero-mark{display:none}.layout{grid-template-columns:1fr}.product-list{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.product-list{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.stats .stat:last-child{grid-column:1/-1}}
+@media print{
+ body{background:white}.no-print,header,.hero,.stats,.layout .panel:first-child,footer,.toolbar .no-print{display:none!important}
+ main{padding:0;max-width:none}.layout{display:block}.panel{border:0;padding:0}.panel h2{display:none}
+ .product-list{grid-template-columns:repeat(3,1fr);gap:9mm}.product{break-inside:avoid;border:1px solid #ddd}
+ .product img{height:42mm;object-fit:contain;background:#f7f7f7}.product .info{padding:7px}.product h3{font-size:12px}.code{font-size:9px}
+ .price{border:1px solid #b89a62;padding:4px;margin-top:6px;color:#333;font-size:10px}
+ .print-head{display:block!important;text-align:center;margin:0 0 12mm;border-bottom:2px solid #b89a62;padding:8mm 0}
+}
+.print-head{display:none}
+</style>
+</head>
+<body>
+<header><div class="brand">MOBİLYA <span>ASİSTANI</span></div><small>ÜRÜN • KATALOG • SATIŞ</small></header>
+<main>
+<section class="hero">
+ <div><div class="eyebrow">Dijital ürün atölyeniz</div><h1>Mobilyanızı dijital dünyaya taşıyın.</h1>
+ <p>Ürün bilgilerinizi düzenleyin, profesyonel katalog görünümünde çıktı alın ve satış içeriklerinizi tek yerde hazırlayın.</p>
+ <div class="actions"><button class="primary" onclick="document.getElementById('name').focus()">Ürün eklemeye başla</button><button class="secondary" onclick="window.print()">Kataloğu PDF olarak kaydet</button></div></div>
+ <div class="hero-mark">MA</div>
+</section>
+<section class="stats">
+ <div class="stat"><b id="count">0</b><span>Kaydedilen ürün</span></div>
+ <div class="stat"><b>6</b><span>Ürün / katalog sayfası hedefi</span></div>
+ <div class="stat"><b>0 TL</b><span>Bu prototipin yazılım lisansı</span></div>
+</section>
+<div class="layout">
+ <section class="panel">
+  <h2>Yeni ürün kaydet</h2>
+  <form id="productForm">
+   <div class="field"><label for="name">Ürün adı *</label><input id="name" required maxlength="80" placeholder="Örn. Lina yemek sandalyesi"></div>
+   <div class="field"><label for="code">Ürün kodu</label><input id="code" maxlength="40" placeholder="Örn. SND-001"></div>
+   <div class="field"><label for="category">Kategori</label><select id="category"><option>Sandalye</option><option>Masa</option><option>Yemek grubu</option><option>Tekli koltuk</option><option>İkili koltuk</option><option>Üçlü koltuk</option><option>Köşe koltuk</option><option>Diğer</option></select></div>
+   <div class="field"><label for="details">Ürün özellikleri</label><textarea id="details" placeholder="Yalnızca doğrulanmış ölçü, malzeme, renk ve özellikleri yazın."></textarea></div>
+   <div class="field"><label for="price">Fiyat (TL)</label><input id="price" type="number" min="0" step="0.01" placeholder="Boş bırakılabilir"></div>
+   <div class="field upload"><label for="photo">Ürün fotoğrafı</label><input id="photo" type="file" accept="image/*"><small>Fotoğraf bu tarayıcıda saklanır. Hassas müşteri görsellerini ortak cihazda tutmayın.</small></div>
+   <button class="dark" type="submit">Ürünü kaydet</button>
+  </form>
+  <div class="notice">Bu ilk prototipte ürünler yalnızca bu cihazın/tarayıcının yerel hafızasında tutulur. Henüz kullanıcı hesabı, çevrimiçi veritabanı veya otomatik AI API bağlantısı yoktur.</div>
+ </section>
+ <section class="panel">
+  <div class="print-head"><div class="brand">MOBİLYA <span>ASİSTANI</span></div><h1>ÜRÜN KATALOĞU</h1><p>Mağaza: ____________________ &nbsp; Tarih: ______________</p></div>
+  <div class="toolbar"><div><h2 style="margin:0">Ürün kataloğu</h2><p>Ürünleri ekleyin, düzenleyin ve PDF çıktısı alın.</p></div><div class="actions no-print" style="margin:0"><button class="primary" onclick="window.print()">PDF / Yazdır</button><button class="danger" onclick="clearAll()">Tümünü sil</button></div></div>
+  <div id="products" class="product-list"><div class="empty">Henüz ürün eklenmedi. İlk ürününüzü soldaki formdan kaydedin.</div></div>
+ </section>
+</div>
+</main>
+<footer>© Mobilya Asistanı — Bu sürüm doğrulama amaçlı ücretsiz prototiptir. Ürün verileri cihazınızda saklanır; düzenli yedek alın.</footer>
+<script>
+const KEY='mobilya_asistani_products_v1';
+let products=[];
+try{products=JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){products=[]}
+const $=id=>document.getElementById(id);
+function save(){try{localStorage.setItem(KEY,JSON.stringify(products))}catch(e){alert('Tarayıcı depolama alanı dolmuş olabilir. Daha küçük fotoğraf deneyin.')}render()}
+function render(){
+ $('count').textContent=products.length;
+ const root=$('products');
+ if(!products.length){root.innerHTML='<div class="empty">Henüz ürün eklenmedi. İlk ürününüzü soldaki formdan kaydedin.</div>';return}
+ root.innerHTML=products.map((p,i)=>`<article class="product">
+ ${p.photo?`<img src="${p.photo}" alt="">`:`<div class="product img-placeholder" style="height:170px;display:grid;place-items:center;color:#777;background:#ece8df">ÜRÜN FOTOĞRAFI</div>`}
+ <div class="info"><div class="code">${esc(p.category)} · ${esc(p.code||'KOD BELİRTİLMEDİ')}</div><h3>${esc(p.name)}</h3><div>${esc(p.details||'Ürün açıklaması eklenmedi.')}</div><div class="price">${p.price?Number(p.price).toLocaleString('tr-TR')+' TL':'Fiyat: __________________'}</div>
+ <button class="danger no-print" style="margin-top:9px;padding:7px 10px" onclick="removeProduct(${i})">Sil</button></div></article>`).join('');
+}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+$('productForm').addEventListener('submit',e=>{
+ e.preventDefault();const file=$('photo').files[0];
+ const add=data=>{products.unshift({name:$('name').value.trim(),code:$('code').value.trim(),category:$('category').value,details:$('details').value.trim(),price:$('price').value,photo:data||''});save();e.target.reset()};
+ if(file){if(file.size>1200000){alert('Bu prototipte fotoğraf başına 1,2 MB sınırı var. Fotoğrafı küçültüp tekrar deneyin.');return}
+ const r=new FileReader();r.onload=()=>add(r.result);r.readAsDataURL(file)}else add('');
+});
+function removeProduct(i){if(confirm('Bu ürünü silmek istiyor musunuz?')){products.splice(i,1);save()}}
+function clearAll(){if(confirm('Bu tarayıcıdaki tüm ürünleri silmek istiyor musunuz?')){products=[];save()}}
+render();
+</script>
+</body></html>
