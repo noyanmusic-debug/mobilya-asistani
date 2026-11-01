@@ -95,7 +95,8 @@ function removeProduct(i){if(confirm('Bu ürünü silmek istiyor musunuz?')){pro
 function clearAll(){if(confirm('Bu tarayıcıdaki tüm ürünleri silmek istiyor musunuz?')){products=[];save()}}
 render();
 </script>
-</body></html>
+ <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
   const SUPABASE_URL = 'https://copszuhmtuguodklznlu.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_0K6c27B6m9wB2fxWX5UVUg_bQvVSgyZ';
@@ -104,4 +105,7 @@ render();
     SUPABASE_URL,
     SUPABASE_KEY
   );
+</script>
+</body></html>
+
 </script>
