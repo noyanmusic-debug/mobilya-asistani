@@ -96,3 +96,12 @@ function clearAll(){if(confirm('Bu tarayıcıdaki tüm ürünleri silmek istiyor
 render();
 </script>
 </body></html>
+<script>
+  const SUPABASE_URL = 'https://copszuhmtuguodklznlu.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_0K6c27B6m9wB2fxWX5UVUg_bQvVSgyZ';
+
+  const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+</script>
