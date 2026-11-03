@@ -50,6 +50,10 @@ footer{max-width:1180px;margin:auto;padding:0 22px 35px;color:var(--muted);font-
 .catalog-pages{display:block}.catalog-page{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:14px}
 @media(max-width:800px){.hero{grid-template-columns:1fr}.hero-mark{display:none}.layout{grid-template-columns:1fr}.product-list{grid-template-columns:1fr 1fr}}
 @media(max-width:480px){.product-list,.catalog-page{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.stats .stat:last-child{grid-column:1/-1}header{align-items:flex-start;flex-direction:column}}
+.filters{display:grid;grid-template-columns:1fr 210px;gap:10px;margin-bottom:12px}
+.filters input,.filters select{width:100%;border:1px solid var(--line);border-radius:8px;padding:11px;background:#fffefa;font:inherit;color:var(--ink)}
+.editing{background:#fbf3df;border:1px solid #d9c48e;color:#5e4a1c;padding:10px 12px;border-radius:8px;font-size:13px;margin-bottom:10px}
+@media(max-width:480px){.filters{grid-template-columns:1fr}}
 @page{size:A4 landscape;margin:10mm}
 @media print{
 body{background:#fff}header,.no-print,.hero,.stats,footer,.layout>.panel:first-child{display:none!important}
@@ -104,7 +108,8 @@ main{padding:0;max-width:none}.layout{display:block}.layout>.panel{border:0;padd
 <pre id="diag" class="status diag no-print" hidden></pre>
 <div class="layout">
 <section class="panel">
-<h2>Yeni ürün kaydet</h2>
+<h2 id="form-title">Yeni ürün kaydet</h2>
+<div id="edit-banner" class="editing" hidden></div>
 <form id="product-form">
 <div class="field"><label for="name">Ürün adı *</label><input id="name" required maxlength="80" placeholder="Örn. Lina yemek sandalyesi"></div>
 <div class="field"><label for="code">Ürün kodu</label><input id="code" maxlength="40" placeholder="Örn. SND-001"></div>
@@ -112,7 +117,7 @@ main{padding:0;max-width:none}.layout{display:block}.layout>.panel{border:0;padd
 <div class="field"><label for="details">Ürün özellikleri</label><textarea id="details" placeholder="Ölçü, malzeme, renk ve özellikler"></textarea></div>
 <div class="field"><label for="price">Fiyat (TL)</label><input id="price" type="number" min="0" step="0.01" placeholder="Boş bırakılabilir"></div>
 <div class="field upload"><label for="photo">Ürün fotoğrafı</label><input id="photo" type="file" accept="image/*"><small>Önerilen fotoğraf boyutu en fazla 5 MB.</small></div>
-<button class="dark" id="save-product" type="submit">Ürünü kaydet</button>
+<button class="dark" id="save-product" type="submit">Ürünü kaydet</button> <button class="secondary" id="cancel-edit" type="button" hidden style="border:1px solid var(--line)">Vazgeç</button>
 </form>
 <div class="notice">Ürünler seçili işletmenin Supabase veritabanında tutulur. Fotoğraflar özel depolama alanına yüklenir.</div>
 <div class="actions no-print"><button class="secondary" type="button" id="import-local">Bu cihazdaki eski ürünleri buluta aktar</button></div>
@@ -120,6 +125,8 @@ main{padding:0;max-width:none}.layout{display:block}.layout>.panel{border:0;padd
 <section class="panel">
 <div class="print-head" id="print-head"><div class="brand">MOBİLYA <span>ASİSTANI</span></div><h1>ÜRÜN KATALOĞU</h1><p id="print-business"></p></div>
 <div class="toolbar"><div><h2 style="margin:0">Ürün kataloğu</h2><p>Ürünleri ekleyin ve PDF çıktısı alın.</p></div><div class="actions no-print" style="margin:0"><button class="primary" type="button" id="pdf-button">PDF / Yazdır</button></div></div>
+<div class="filters no-print"><input id="search" type="search" placeholder="Ürün adı, kodu veya özellik ara…" aria-label="Ürün ara"><select id="filter-category" aria-label="Kategori filtresi"><option value="">Tüm kategoriler</option><option>Sandalye</option><option>Masa</option><option>Yemek grubu</option><option>Tekli koltuk</option><option>İkili koltuk</option><option>Üçlü koltuk</option><option>Köşe koltuk</option><option>Diğer</option></select></div>
+<div id="filter-info" class="no-print" style="font-size:12px;color:var(--muted);margin:-4px 0 10px" hidden></div>
 <div id="products" class="product-list"><div class="empty">Ürünler yükleniyor…</div></div>
 </section>
 </div>
@@ -142,6 +149,7 @@ let currentBusiness = null;
 let products = [];
 let signedImageUrls = new Map();
 let diagLines = [];
+let editingId = null;
 
 function showStatus(id, message, isError=false) {
   const el = $(id);
@@ -211,6 +219,7 @@ async function startApp(session) {
   select.value = currentBusiness.id;
   select.onchange = async () => {
     currentBusiness = businesses.find(b => b.id === select.value);
+    endEdit();
     await loadProducts();
   };
   $('header-caption').textContent = 'İŞLETME • ÜRÜN • KATALOG';
@@ -250,22 +259,35 @@ async function loadProducts() {
   return true;
 }
 
+function visibleProducts() {
+  const q = $('search').value.trim().toLocaleLowerCase('tr-TR');
+  const cat = $('filter-category').value;
+  return products.filter(p => (!cat || p.category === cat) &&
+    (!q || [p.name, p.code, p.description, p.category].some(v => String(v || '').toLocaleLowerCase('tr-TR').includes(q))));
+}
+
 function renderProducts() {
   $('count').textContent = products.length;
+  const list = visibleProducts();
+  const filtered = list.length !== products.length;
+  const info = $('filter-info');
+  info.hidden = !filtered;
+  info.textContent = filtered ? 'Filtre aktif: ' + list.length + ' / ' + products.length + ' ürün gösteriliyor. PDF yalnızca gösterilen ürünleri içerir.' : '';
   const root = $('products');
-  if (!products.length) {
+  if (!list.length) {
     root.className = 'product-list';
-    root.innerHTML = '<div class="empty">Bu işletmede henüz ürün yok. İlk ürününüzü soldaki formdan kaydedin.</div>';
+    root.innerHTML = '<div class="empty">' + (products.length ? 'Aramanıza uyan ürün yok.' : 'Bu işletmede henüz ürün yok. İlk ürününüzü soldaki formdan kaydedin.') + '</div>';
     return;
   }
   // Print pages: six products per A4 landscape page, three columns by two rows.
   const pages = [];
-  for (let i=0; i<products.length; i+=6) {
-    pages.push(`<div class="catalog-page">${cardsForPage(products.slice(i,i+6))}</div>`);
+  for (let i=0; i<list.length; i+=6) {
+    pages.push(`<div class="catalog-page">${cardsForPage(list.slice(i,i+6))}</div>`);
   }
   root.className = 'catalog-pages';
   root.innerHTML = pages.join('');
   root.querySelectorAll('.delete-product').forEach(btn => btn.addEventListener('click', () => deleteProduct(btn.dataset.id)));
+  root.querySelectorAll('.edit-product').forEach(btn => btn.addEventListener('click', () => startEdit(btn.dataset.id)));
 }
 
 function cardsForPage(items) {
@@ -275,7 +297,7 @@ function cardsForPage(items) {
 ${image ? `<img src="${image}" alt="${esc(p.name)}">` : `<div class="img-placeholder" style="height:170px;display:grid;place-items:center;color:#777;background:#ece8df">ÜRÜN FOTOĞRAFI</div>`}
 <div class="info"><div class="code">${esc(p.category || 'Diğer')} · ${esc(p.code || 'KOD BELİRTİLMEDİ')}</div>
 <h3>${esc(p.name)}</h3><div>${esc(p.description || 'Ürün açıklaması eklenmedi.')}</div><div class="price">${formatPrice(p.price)}</div>
-<button class="danger no-print delete-product" data-id="${esc(p.id)}" style="margin-top:9px;padding:7px 10px" type="button">Sil</button></div></article>`;
+<button class="secondary no-print edit-product" data-id="${esc(p.id)}" style="margin-top:9px;padding:7px 10px;border:1px solid var(--line)" type="button">Düzenle</button> <button class="danger no-print delete-product" data-id="${esc(p.id)}" style="margin-top:9px;padding:7px 10px" type="button">Sil</button></div></article>`;
   }).join('');
 }
 
@@ -313,23 +335,58 @@ $('login-form').addEventListener('submit', async event => {
 $('logout-btn').addEventListener('click', async () => {
   const { error } = await supabaseClient.auth.signOut();
   if (error) { showStatus('app-status', 'Çıkış yapılamadı: ' + error.message, true); return; }
-  currentSession = null; businesses=[]; currentBusiness=null; products=[];
+  currentSession = null; businesses=[]; currentBusiness=null; products=[]; editingId=null; $('product-form').reset(); updateFormMode();
   $('app-view').hidden = true; $('accountbar').hidden = true; $('login-view').hidden = false;
   $('login-password').value = '';
 });
+
+function updateFormMode() {
+  const editing = !!editingId;
+  const p = editing ? products.find(x => x.id === editingId) : null;
+  $('form-title').textContent = editing ? 'Ürünü düzenle' : 'Yeni ürün kaydet';
+  $('save-product').textContent = editing ? 'Değişiklikleri kaydet' : 'Ürünü kaydet';
+  $('cancel-edit').hidden = !editing;
+  const banner = $('edit-banner');
+  banner.hidden = !p;
+  banner.textContent = p ? 'Düzenleniyor: ' + p.name + (p.image_url ? ' — yeni fotoğraf seçmezseniz mevcut fotoğraf korunur.' : '') : '';
+}
+function startEdit(id) {
+  const p = products.find(x => x.id === id);
+  if (!p) return;
+  editingId = id;
+  $('name').value = p.name || '';
+  $('code').value = p.code || '';
+  $('category').value = p.category || 'Diğer';
+  if (!$('category').value) $('category').value = 'Diğer';
+  $('details').value = p.description || '';
+  $('price').value = (p.price === null || p.price === undefined) ? '' : p.price;
+  $('photo').value = '';
+  updateFormMode();
+  $('product-form').scrollIntoView({behavior:'smooth', block:'center'});
+  $('name').focus();
+}
+function endEdit() {
+  editingId = null;
+  $('product-form').reset();
+  updateFormMode();
+}
+$('cancel-edit').addEventListener('click', endEdit);
 
 $('product-form').addEventListener('submit', async event => {
   event.preventDefault();
   if (!currentBusiness) { showStatus('app-status','Önce bir işletme seçilmelidir.',true); return; }
   const button = $('save-product');
-  setBusy(button,true,'Buluta kaydediliyor…');
+  const isEdit = !!editingId;
+  const editProduct = isEdit ? products.find(p => p.id === editingId) : null;
+  if (isEdit && !editProduct) { showStatus('app-status','Düzenlenen ürün bulunamadı. Sayfayı yenileyin.',true); endEdit(); return; }
+  setBusy(button,true,isEdit ? 'Güncelleniyor…' : 'Buluta kaydediliyor…');
   showStatus('app-status','');
   diagLines = [];
   const t0 = Date.now();
   const el = () => ((Date.now()-t0)/1000).toFixed(1) + ' sn';
   let imagePath = null;
   try {
-    diag('İşletme: ' + currentBusiness.name + ' (' + currentBusiness.id + ')');
+    diag((isEdit ? 'DÜZENLEME: ' + editProduct.name + ' — ' : '') + 'İşletme: ' + currentBusiness.name + ' (' + currentBusiness.id + ')');
     diag('1/4 Oturum kontrol ediliyor…');
     const { data: sd, error: se } = await withTimeout(supabaseClient.auth.getSession(), 10000, 'Oturum kontrolü');
     if (se) throw se;
@@ -346,33 +403,48 @@ $('product-form').addEventListener('submit', async event => {
     }
 
     const payload = {
-      business_id:currentBusiness.id,
       name:$('name').value.trim(),
       code:$('code').value.trim() || null,
       category:$('category').value,
       description:$('details').value.trim() || null,
-      price:$('price').value === '' ? null : Number($('price').value),
-      image_url:imagePath
+      price:$('price').value === '' ? null : Number($('price').value)
     };
-    diag('3/4 Veritabanına kaydediliyor…');
-    const { data: row, error } = await withTimeout(
-      supabaseClient.from('products').insert(payload).select('id').single(), 20000, 'Veritabanı kaydı');
+    let row, error;
+    if (isEdit) {
+      if (imagePath) payload.image_url = imagePath;
+      payload.updated_at = new Date().toISOString();
+      diag('3/4 Veritabanında güncelleniyor…');
+      ({ data: row, error } = await withTimeout(
+        supabaseClient.from('products').update(payload).eq('id', editingId).eq('business_id', currentBusiness.id).select('id').single(),
+        20000, 'Veritabanı güncelleme'));
+    } else {
+      payload.business_id = currentBusiness.id;
+      payload.image_url = imagePath;
+      diag('3/4 Veritabanına kaydediliyor…');
+      ({ data: row, error } = await withTimeout(
+        supabaseClient.from('products').insert(payload).select('id').single(),
+        20000, 'Veritabanı kaydı'));
+    }
     if (error) {
       if (imagePath) await supabaseClient.storage.from(STORAGE_BUCKET).remove([imagePath]).catch(() => {});
       throw error;
     }
-    diag('3/4 Kayıt veritabanında oluştu, id: ' + row.id + ' (' + el() + ')');
+    diag('3/4 Veritabanı işlemi tamam, id: ' + row.id + ' (' + el() + ')');
+    if (isEdit && imagePath && editProduct.image_url) {
+      const { error: delErr } = await supabaseClient.storage.from(STORAGE_BUCKET).remove([editProduct.image_url]);
+      if (delErr) diag('Eski fotoğraf silinemedi: ' + errText(delErr));
+    }
 
-    event.target.reset();
+    if (isEdit) endEdit(); else event.target.reset();
     diag('4/4 Ürün listesi yenileniyor…');
     const listed = await loadProducts();
     diag('4/4 Liste ' + (listed ? 'yenilendi' : 'YENİLENEMEDİ') + ' (' + el() + ')');
-    if (listed) showStatus('app-status','Ürün başarıyla buluta kaydedildi.');
-    else showStatus('app-status','Ürün kaydedildi ancak liste yenilenemedi. Sayfayı yenileyin.',true);
+    if (listed) showStatus('app-status', isEdit ? 'Ürün güncellendi.' : 'Ürün başarıyla buluta kaydedildi.');
+    else showStatus('app-status','İşlem tamamlandı ancak liste yenilenemedi. Sayfayı yenileyin.',true);
   } catch (error) {
     diag('HATA: ' + errText(error));
-    showStatus('app-status','Kayıt başarısız: ' + errText(error),true);
-  } finally { setBusy(button,false); }
+    showStatus('app-status',(isEdit ? 'Güncelleme başarısız: ' : 'Kayıt başarısız: ') + errText(error),true);
+  } finally { setBusy(button,false); updateFormMode(); }
 });
 
 async function deleteProduct(id) {
@@ -384,6 +456,7 @@ async function deleteProduct(id) {
     const { error: storageError } = await supabaseClient.storage.from(STORAGE_BUCKET).remove([product.image_url]);
     if (storageError) console.warn('Fotoğraf silinemedi:',storageError.message);
   }
+  if (editingId === id) endEdit();
   await loadProducts();
   showStatus('app-status','Ürün silindi.');
 }
@@ -429,10 +502,12 @@ $('import-local').addEventListener('click', async () => {
 });
 
 function printCatalog() {
-  if (!products.length) { alert('PDF oluşturmak için önce ürün ekleyin.'); return; }
+  if (!visibleProducts().length) { alert('Yazdırılacak ürün yok. Önce ürün ekleyin veya filtreyi temizleyin.'); return; }
   window.print();
 }
 $('pdf-button').addEventListener('click',printCatalog);
+$('search').addEventListener('input',renderProducts);
+$('filter-category').addEventListener('change',renderProducts);
 $('hero-pdf').addEventListener('click',printCatalog);
 $('focus-product').addEventListener('click',()=>$('name').focus());
 
