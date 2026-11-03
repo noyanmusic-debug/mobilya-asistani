@@ -37,6 +37,7 @@ button:disabled{opacity:.55;cursor:wait}.primary{background:var(--gold);color:#1
 .notice{margin-top:16px;background:#efeadf;border-left:3px solid var(--gold);padding:13px 15px;border-radius:6px;color:#5e594e;font-size:13px}
 .status{margin:12px 0;padding:11px 13px;border-radius:8px;background:#eef2eb;color:#405a42;font-size:13px;white-space:pre-wrap}
 .status.error{background:#f7e9e6;color:#8a3027}
+.diag{font-family:Consolas,Menlo,monospace;font-size:12px;background:#24231f;color:#e7e2d4;word-break:break-word}
 .toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
 .toolbar p{margin:0;color:var(--muted);font-size:13px}
 .accountbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
@@ -51,91 +52,88 @@ footer{max-width:1180px;margin:auto;padding:0 22px 35px;color:var(--muted);font-
 @media(max-width:480px){.product-list,.catalog-page{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.stats .stat:last-child{grid-column:1/-1}header{align-items:flex-start;flex-direction:column}}
 @page{size:A4 landscape;margin:10mm}
 @media print{
- body{background:#fff}header,.no-print,.hero,.stats,footer,.layout>.panel:first-child{display:none!important}
- main{padding:0;max-width:none}.layout{display:block}.layout>.panel{border:0;padding:0}
- .toolbar{display:none!important}.catalog-pages{display:block}.catalog-page{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:14px}
- .catalog-page{height:190mm;page-break-after:always;break-after:page;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);gap:7mm}
- .catalog-page:last-child{page-break-after:auto;break-after:auto}
- .product{break-inside:avoid;border:1px solid #ddd;display:flex;flex-direction:column}
- .product img,.product .img-placeholder{height:52mm!important;object-fit:contain;background:#f7f7f7}
- .product .info{padding:7px}.product h3{font-size:12px}.code{font-size:9px}
- .price{border:1px solid #b89a62;padding:4px;margin-top:6px;color:#333;font-size:10px}
- .print-head{display:block!important;text-align:center;border-bottom:2px solid #b89a62;padding:0 0 5mm;margin-bottom:5mm}
+body{background:#fff}header,.no-print,.hero,.stats,footer,.layout>.panel:first-child{display:none!important}
+main{padding:0;max-width:none}.layout{display:block}.layout>.panel{border:0;padding:0}
+.toolbar{display:none!important}.catalog-pages{display:block}.catalog-page{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:14px}
+.catalog-page{height:190mm;page-break-after:always;break-after:page;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);gap:7mm}
+.catalog-page:last-child{page-break-after:auto;break-after:auto}
+.product{break-inside:avoid;border:1px solid #ddd;display:flex;flex-direction:column}
+.product img,.product .img-placeholder{height:52mm!important;object-fit:contain;background:#f7f7f7}
+.product .info{padding:7px}.product h3{font-size:12px}.code{font-size:9px}
+.price{border:1px solid #b89a62;padding:4px;margin-top:6px;color:#333;font-size:10px}
+.print-head{display:block!important;text-align:center;border-bottom:2px solid #b89a62;padding:0 0 5mm;margin-bottom:5mm}
 }
 </style>
 </head>
 <body>
 <header>
- <div class="brand">MOBİLYA <span>ASİSTANI</span></div>
- <div class="accountbar no-print" id="accountbar" hidden>
-  <small id="account-email"></small>
-  <select id="business-select" aria-label="İşletme seç"></select>
-  <button class="secondary" id="logout-btn" type="button">Çıkış</button>
- </div>
- <small id="header-caption">ÜRÜN • KATALOG • SATIŞ</small>
+<div class="brand">MOBİLYA <span>ASİSTANI</span></div>
+<div class="accountbar no-print" id="accountbar" hidden>
+<small id="account-email"></small>
+<select id="business-select" aria-label="İşletme seç"></select>
+<button class="secondary" id="logout-btn" type="button">Çıkış</button>
+</div>
+<small id="header-caption">ÜRÜN • KATALOG • SATIŞ</small>
 </header>
 <main>
- <section id="login-view" class="login-wrap">
-  <form class="login-card" id="login-form">
-   <div class="eyebrow">Dijital ürün atölyeniz</div>
-   <h1>Mobilya Asistanı</h1>
-   <p>İşletme hesabınızla giriş yapın.</p>
-   <div class="field"><label for="login-email">E-posta</label><input id="login-email" type="email" autocomplete="username" required></div>
-   <div class="field"><label for="login-password">Şifre</label><input id="login-password" type="password" autocomplete="current-password" required></div>
-   <button class="dark" id="login-button" type="submit" style="width:100%">Giriş Yap</button>
-   <div id="login-status" class="status" hidden></div>
-   <div class="notice">Giriş bilgilerinizi bu cihazda paylaşmayın. Şifrenizi kimseyle paylaşmayın.</div>
-  </form>
- </section>
-
- <section id="app-view" hidden>
-  <section class="hero">
-   <div><div class="eyebrow">Dijital ürün atölyeniz</div><h1>Mobilyanızı dijital dünyaya taşıyın.</h1>
-   <p>Ürünlerinizi yönetin, fotoğraflarınızı güvenli şekilde saklayın ve profesyonel katalog oluşturun.</p>
-   <div class="actions"><button class="primary" type="button" id="focus-product">Ürün eklemeye başla</button><button class="secondary" type="button" id="hero-pdf">Kataloğu PDF olarak kaydet</button></div></div>
-   <div class="hero-mark">MA</div>
-  </section>
-  <section class="stats">
-   <div class="stat"><b id="count">0</b><span>Kaydedilen ürün</span></div>
-   <div class="stat"><b>6</b><span>Ürün / katalog sayfası</span></div>
-   <div class="stat"><b>Bulut</b><span>İşletmeye özel kayıt</span></div>
-  </section>
-  <div id="app-status" class="status" hidden></div>
-  <div class="layout">
-   <section class="panel">
-    <h2>Yeni ürün kaydet</h2>
-    <form id="product-form">
-     <div class="field"><label for="name">Ürün adı *</label><input id="name" required maxlength="80" placeholder="Örn. Lina yemek sandalyesi"></div>
-     <div class="field"><label for="code">Ürün kodu</label><input id="code" maxlength="40" placeholder="Örn. SND-001"></div>
-     <div class="field"><label for="category">Kategori</label><select id="category"><option>Sandalye</option><option>Masa</option><option>Yemek grubu</option><option>Tekli koltuk</option><option>İkili koltuk</option><option>Üçlü koltuk</option><option>Köşe koltuk</option><option>Diğer</option></select></div>
-     <div class="field"><label for="details">Ürün özellikleri</label><textarea id="details" placeholder="Ölçü, malzeme, renk ve özellikler"></textarea></div>
-     <div class="field"><label for="price">Fiyat (TL)</label><input id="price" type="number" min="0" step="0.01" placeholder="Boş bırakılabilir"></div>
-     <div class="field upload"><label for="photo">Ürün fotoğrafı</label><input id="photo" type="file" accept="image/*"><small>Önerilen fotoğraf boyutu en fazla 5 MB.</small></div>
-     <button class="dark" id="save-product" type="submit">Ürünü kaydet</button>
-    </form>
-    <div class="notice">Ürünler seçili işletmenin Supabase veritabanında tutulur. Fotoğraflar özel depolama alanına yüklenir.</div>
-    <div class="actions no-print"><button class="secondary" type="button" id="import-local">Bu cihazdaki eski ürünleri buluta aktar</button></div>
-   </section>
-   <section class="panel">
-    <div class="print-head" id="print-head"><div class="brand">MOBİLYA <span>ASİSTANI</span></div><h1>ÜRÜN KATALOĞU</h1><p id="print-business"></p></div>
-    <div class="toolbar"><div><h2 style="margin:0">Ürün kataloğu</h2><p>Ürünleri ekleyin ve PDF çıktısı alın.</p></div><div class="actions no-print" style="margin:0"><button class="primary" type="button" id="pdf-button">PDF / Yazdır</button></div></div>
-    <div id="products" class="product-list"><div class="empty">Ürünler yükleniyor…</div></div>
-   </section>
-  </div>
- </section>
+<section id="login-view" class="login-wrap">
+<form class="login-card" id="login-form">
+<div class="eyebrow">Dijital ürün atölyeniz</div>
+<h1>Mobilya Asistanı</h1>
+<p>İşletme hesabınızla giriş yapın.</p>
+<div class="field"><label for="login-email">E-posta</label><input id="login-email" type="email" autocomplete="username" required></div>
+<div class="field"><label for="login-password">Şifre</label><input id="login-password" type="password" autocomplete="current-password" required></div>
+<button class="dark" id="login-button" type="submit" style="width:100%">Giriş Yap</button>
+<div id="login-status" class="status" hidden></div>
+<div class="notice">Giriş bilgilerinizi bu cihazda paylaşmayın. Şifrenizi kimseyle paylaşmayın.</div>
+</form>
+</section>
+<section id="app-view" hidden>
+<section class="hero">
+<div><div class="eyebrow">Dijital ürün atölyeniz</div><h1>Mobilyanızı dijital dünyaya taşıyın.</h1>
+<p>Ürünlerinizi yönetin, fotoğraflarınızı güvenli şekilde saklayın ve profesyonel katalog oluşturun.</p>
+<div class="actions"><button class="primary" type="button" id="focus-product">Ürün eklemeye başla</button><button class="secondary" type="button" id="hero-pdf">Kataloğu PDF olarak kaydet</button></div></div>
+<div class="hero-mark">MA</div>
+</section>
+<section class="stats">
+<div class="stat"><b id="count">0</b><span>Kaydedilen ürün</span></div>
+<div class="stat"><b>6</b><span>Ürün / katalog sayfası</span></div>
+<div class="stat"><b>Bulut</b><span>İşletmeye özel kayıt</span></div>
+</section>
+<div id="app-status" class="status" hidden></div>
+<pre id="diag" class="status diag no-print" hidden></pre>
+<div class="layout">
+<section class="panel">
+<h2>Yeni ürün kaydet</h2>
+<form id="product-form">
+<div class="field"><label for="name">Ürün adı *</label><input id="name" required maxlength="80" placeholder="Örn. Lina yemek sandalyesi"></div>
+<div class="field"><label for="code">Ürün kodu</label><input id="code" maxlength="40" placeholder="Örn. SND-001"></div>
+<div class="field"><label for="category">Kategori</label><select id="category"><option>Sandalye</option><option>Masa</option><option>Yemek grubu</option><option>Tekli koltuk</option><option>İkili koltuk</option><option>Üçlü koltuk</option><option>Köşe koltuk</option><option>Diğer</option></select></div>
+<div class="field"><label for="details">Ürün özellikleri</label><textarea id="details" placeholder="Ölçü, malzeme, renk ve özellikler"></textarea></div>
+<div class="field"><label for="price">Fiyat (TL)</label><input id="price" type="number" min="0" step="0.01" placeholder="Boş bırakılabilir"></div>
+<div class="field upload"><label for="photo">Ürün fotoğrafı</label><input id="photo" type="file" accept="image/*"><small>Önerilen fotoğraf boyutu en fazla 5 MB.</small></div>
+<button class="dark" id="save-product" type="submit">Ürünü kaydet</button>
+</form>
+<div class="notice">Ürünler seçili işletmenin Supabase veritabanında tutulur. Fotoğraflar özel depolama alanına yüklenir.</div>
+<div class="actions no-print"><button class="secondary" type="button" id="import-local">Bu cihazdaki eski ürünleri buluta aktar</button></div>
+</section>
+<section class="panel">
+<div class="print-head" id="print-head"><div class="brand">MOBİLYA <span>ASİSTANI</span></div><h1>ÜRÜN KATALOĞU</h1><p id="print-business"></p></div>
+<div class="toolbar"><div><h2 style="margin:0">Ürün kataloğu</h2><p>Ürünleri ekleyin ve PDF çıktısı alın.</p></div><div class="actions no-print" style="margin:0"><button class="primary" type="button" id="pdf-button">PDF / Yazdır</button></div></div>
+<div id="products" class="product-list"><div class="empty">Ürünler yükleniyor…</div></div>
+</section>
+</div>
+</section>
 </main>
 <footer>© Mobilya Asistanı — İşletme verileri Supabase üzerinde saklanır.</footer>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script>
 'use strict';
-
 // Tarayıcıda kullanılabilen Supabase Project URL ve Publishable key.
 const SUPABASE_URL = 'https://copszuhmtuguodklznlu.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_0K6c27B6m9wB2fxWX5UVUg_bQvVSgyZ';
 const STORAGE_BUCKET = 'product-images';
 const LEGACY_KEY = 'mobilya_asistani_products_v1';
-
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const $ = id => document.getElementById(id);
 let currentSession = null;
@@ -143,255 +141,307 @@ let businesses = [];
 let currentBusiness = null;
 let products = [];
 let signedImageUrls = new Map();
+let diagLines = [];
 
 function showStatus(id, message, isError=false) {
- const el = $(id);
- el.textContent = message;
- el.hidden = !message;
- el.classList.toggle('error', isError);
+  const el = $(id);
+  el.textContent = message;
+  el.hidden = !message;
+  el.classList.toggle('error', isError);
+}
+function diag(msg) {
+  const t = new Date().toLocaleTimeString('tr-TR');
+  diagLines.push(t + '  ' + msg);
+  if (diagLines.length > 40) diagLines.shift();
+  const el = $('diag');
+  el.hidden = false;
+  el.textContent = diagLines.join('\n');
+  console.log('[MA]', msg);
+}
+function errText(e) {
+  if (!e) return 'Bilinmeyen hata';
+  return [e.message || String(e), e.code && ('kod: ' + e.code), e.statusCode && ('http: ' + e.statusCode), e.status && ('http: ' + e.status), e.details, e.hint].filter(Boolean).join(' | ');
+}
+function withTimeout(promise, ms, label) {
+  let timer;
+  const timeout = new Promise((_, reject) => {
+    timer = setTimeout(() => reject(new Error(label + ': ' + (ms/1000) + ' sn içinde yanıt gelmedi (takıldı)')), ms);
+  });
+  return Promise.race([Promise.resolve(promise), timeout]).finally(() => clearTimeout(timer));
 }
 function esc(value) {
- return String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  return String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 function setBusy(button, busy, label) {
- button.disabled = busy;
- if (busy) { button.dataset.oldLabel = button.textContent; button.textContent = label || 'İşleniyor…'; }
- else if (button.dataset.oldLabel) { button.textContent = button.dataset.oldLabel; delete button.dataset.oldLabel; }
+  button.disabled = busy;
+  if (busy) { button.dataset.oldLabel = button.textContent; button.textContent = label || 'İşleniyor…'; }
+  else if (button.dataset.oldLabel) { button.textContent = button.dataset.oldLabel; delete button.dataset.oldLabel; }
 }
 function formatPrice(value) {
- if (value === null || value === undefined || value === '') return 'Fiyat: __________________';
- return Number(value).toLocaleString('tr-TR') + ' TL';
+  if (value === null || value === undefined || value === '') return 'Fiyat: __________________';
+  return Number(value).toLocaleString('tr-TR') + ' TL';
 }
 
 async function startApp(session) {
- currentSession = session;
- $('login-view').hidden = true;
- $('app-view').hidden = false;
- $('accountbar').hidden = false;
- $('account-email').textContent = session.user.email || '';
- showStatus('app-status', 'İşletmeler yükleniyor…');
- const { data, error } = await supabaseClient
-  .from('memberships')
-  .select('business_id, role, businesses(id, name, logo_url, phone, email, address)')
-  .eq('user_id', session.user.id);
-
- if (error) {
-  showStatus('app-status', 'İşletmeler alınamadı: ' + error.message, true);
-  return;
- }
- businesses = (data || []).map(row => ({...row.businesses, role:row.role})).filter(b => b && b.id);
- if (!businesses.length) {
-  showStatus('app-status', 'Bu kullanıcıya bağlı işletme bulunamadı. Supabase memberships tablosundaki user_id ve business_id kayıtlarını kontrol edin.', true);
-  return;
- }
- const select = $('business-select');
- select.innerHTML = businesses.map(b => `<option value="${esc(b.id)}">${esc(b.name || 'İsimsiz işletme')}</option>`).join('');
- currentBusiness = businesses[0];
- select.value = currentBusiness.id;
- select.onchange = async () => {
-  currentBusiness = businesses.find(b => b.id === select.value);
+  currentSession = session;
+  $('login-view').hidden = true;
+  $('app-view').hidden = false;
+  $('accountbar').hidden = false;
+  $('account-email').textContent = session.user.email || '';
+  showStatus('app-status', 'İşletmeler yükleniyor…');
+  let data, error;
+  try {
+    ({ data, error } = await withTimeout(supabaseClient
+      .from('memberships')
+      .select('business_id, role, businesses(id, name, logo_url, phone, email, address)')
+      .eq('user_id', session.user.id), 15000, 'İşletme sorgusu'));
+  } catch (e) { error = e; }
+  if (error) {
+    showStatus('app-status', 'İşletmeler alınamadı: ' + errText(error), true);
+    return;
+  }
+  businesses = (data || []).map(row => ({...row.businesses, role:row.role})).filter(b => b && b.id);
+  if (!businesses.length) {
+    showStatus('app-status', 'Bu kullanıcıya bağlı işletme bulunamadı. Supabase memberships tablosundaki user_id ve business_id kayıtlarını kontrol edin.', true);
+    return;
+  }
+  const select = $('business-select');
+  select.innerHTML = businesses.map(b => `<option value="${esc(b.id)}">${esc(b.name || 'İsimsiz işletme')}</option>`).join('');
+  currentBusiness = businesses[0];
+  select.value = currentBusiness.id;
+  select.onchange = async () => {
+    currentBusiness = businesses.find(b => b.id === select.value);
+    await loadProducts();
+  };
+  $('header-caption').textContent = 'İŞLETME • ÜRÜN • KATALOG';
   await loadProducts();
- };
- $('header-caption').textContent = 'İŞLETME • ÜRÜN • KATALOG';
- await loadProducts();
 }
 
+// Hata fırlatmaz; başarılıysa true, değilse false döner.
 async function loadProducts() {
- if (!currentBusiness) return;
- showStatus('app-status', 'Ürünler yükleniyor…');
- signedImageUrls.clear();
- const { data, error } = await supabaseClient
-  .from('products')
-  .select('id, business_id, name, code, category, description, price, image_url, created_at')
-  .eq('business_id', currentBusiness.id)
-  .order('created_at', {ascending:false});
- if (error) {
-  showStatus('app-status', 'Ürünler yüklenemedi: ' + error.message, true);
-  return;
- }
- products = data || [];
- await Promise.all(products.map(async p => {
-  if (p.image_url) {
-   const { data: signed, error: signError } = await supabaseClient.storage.from(STORAGE_BUCKET).createSignedUrl(p.image_url, 3600);
-   if (!signError && signed?.signedUrl) signedImageUrls.set(p.id, signed.signedUrl);
+  if (!currentBusiness) return false;
+  showStatus('app-status', 'Ürünler yükleniyor…');
+  signedImageUrls.clear();
+  let data, error;
+  try {
+    ({ data, error } = await withTimeout(supabaseClient
+      .from('products')
+      .select('id, business_id, name, code, category, description, price, image_url, created_at')
+      .eq('business_id', currentBusiness.id)
+      .order('created_at', {ascending:false}), 15000, 'Ürün listesi sorgusu'));
+  } catch (e) { error = e; }
+  if (error) {
+    showStatus('app-status', 'Ürünler yüklenemedi: ' + errText(error), true);
+    return false;
   }
- }));
- renderProducts();
- showStatus('app-status', products.length + ' ürün yüklendi. Seçili işletme: ' + currentBusiness.name);
- $('print-business').textContent = [currentBusiness.name, currentBusiness.phone, currentBusiness.email, currentBusiness.address].filter(Boolean).join(' • ');
+  products = data || [];
+  await Promise.all(products.map(async p => {
+    if (!p.image_url) return;
+    try {
+      const { data: signed, error: signError } = await withTimeout(
+        supabaseClient.storage.from(STORAGE_BUCKET).createSignedUrl(p.image_url, 3600), 10000, 'Fotoğraf bağlantısı');
+      if (!signError && signed?.signedUrl) signedImageUrls.set(p.id, signed.signedUrl);
+      else if (signError) diag('Fotoğraf bağlantısı alınamadı (' + p.name + '): ' + errText(signError));
+    } catch (e) { diag('Fotoğraf bağlantısı alınamadı (' + p.name + '): ' + errText(e)); }
+  }));
+  renderProducts();
+  showStatus('app-status', products.length + ' ürün yüklendi. Seçili işletme: ' + currentBusiness.name);
+  $('print-business').textContent = [currentBusiness.name, currentBusiness.phone, currentBusiness.email, currentBusiness.address].filter(Boolean).join(' • ');
+  return true;
 }
 
 function renderProducts() {
- $('count').textContent = products.length;
- const root = $('products');
- if (!products.length) {
-  root.innerHTML = '<div class="empty">Bu işletmede henüz ürün yok. İlk ürününüzü soldaki formdan kaydedin.</div>';
-  return;
- }
- const cards = products.map(p => {
-  const image = signedImageUrls.get(p.id);
-  return `<article class="product">
-   ${image ? `<img src="${image}" alt="${esc(p.name)}">` : `<div class="img-placeholder" style="height:170px;display:grid;place-items:center;color:#777;background:#ece8df">ÜRÜN FOTOĞRAFI</div>`}
-   <div class="info"><div class="code">${esc(p.category || 'Diğer')} · ${esc(p.code || 'KOD BELİRTİLMEDİ')}</div>
-   <h3>${esc(p.name)}</h3><div>${esc(p.description || 'Ürün açıklaması eklenmedi.')}</div>
-   <div class="price">${formatPrice(p.price)}</div>
-   <button class="danger no-print delete-product" data-id="${esc(p.id)}" style="margin-top:9px;padding:7px 10px" type="button">Sil</button></div></article>`;
- }).join('');
- // Print pages: six products per A4 landscape page, three columns by two rows.
- const pages = [];
- for (let i=0; i<products.length; i+=6) {
-  pages.push(`<div class="catalog-page">${cardsForPage(products.slice(i,i+6))}</div>`);
- }
- root.className = 'catalog-pages';
- root.innerHTML = pages.join('');
- root.querySelectorAll('.delete-product').forEach(btn => btn.addEventListener('click', () => deleteProduct(btn.dataset.id)));
+  $('count').textContent = products.length;
+  const root = $('products');
+  if (!products.length) {
+    root.className = 'product-list';
+    root.innerHTML = '<div class="empty">Bu işletmede henüz ürün yok. İlk ürününüzü soldaki formdan kaydedin.</div>';
+    return;
+  }
+  // Print pages: six products per A4 landscape page, three columns by two rows.
+  const pages = [];
+  for (let i=0; i<products.length; i+=6) {
+    pages.push(`<div class="catalog-page">${cardsForPage(products.slice(i,i+6))}</div>`);
+  }
+  root.className = 'catalog-pages';
+  root.innerHTML = pages.join('');
+  root.querySelectorAll('.delete-product').forEach(btn => btn.addEventListener('click', () => deleteProduct(btn.dataset.id)));
 }
+
 function cardsForPage(items) {
- return items.map(p => {
-  const image = signedImageUrls.get(p.id);
-  return `<article class="product">
-   ${image ? `<img src="${image}" alt="${esc(p.name)}">` : `<div class="img-placeholder" style="height:170px;display:grid;place-items:center;color:#777;background:#ece8df">ÜRÜN FOTOĞRAFI</div>`}
-   <div class="info"><div class="code">${esc(p.category || 'Diğer')} · ${esc(p.code || 'KOD BELİRTİLMEDİ')}</div>
-   <h3>${esc(p.name)}</h3><div>${esc(p.description || 'Ürün açıklaması eklenmedi.')}</div><div class="price">${formatPrice(p.price)}</div>
-   <button class="danger no-print delete-product" data-id="${esc(p.id)}" style="margin-top:9px;padding:7px 10px" type="button">Sil</button></div></article>`;
- }).join('');
+  return items.map(p => {
+    const image = signedImageUrls.get(p.id);
+    return `<article class="product">
+${image ? `<img src="${image}" alt="${esc(p.name)}">` : `<div class="img-placeholder" style="height:170px;display:grid;place-items:center;color:#777;background:#ece8df">ÜRÜN FOTOĞRAFI</div>`}
+<div class="info"><div class="code">${esc(p.category || 'Diğer')} · ${esc(p.code || 'KOD BELİRTİLMEDİ')}</div>
+<h3>${esc(p.name)}</h3><div>${esc(p.description || 'Ürün açıklaması eklenmedi.')}</div><div class="price">${formatPrice(p.price)}</div>
+<button class="danger no-print delete-product" data-id="${esc(p.id)}" style="margin-top:9px;padding:7px 10px" type="button">Sil</button></div></article>`;
+  }).join('');
 }
 
 async function uploadPhoto(file) {
- if (!file) return null;
- if (!file.type.startsWith('image/')) throw new Error('Lütfen bir görsel dosyası seçin.');
- if (file.size > 5 * 1024 * 1024) throw new Error('Fotoğraf en fazla 5 MB olabilir.');
- const ext = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g,'') || 'jpg';
- const path = `${currentBusiness.id}/${crypto.randomUUID()}.${ext}`;
- const { error } = await supabaseClient.storage.from(STORAGE_BUCKET).upload(path, file, {
-  cacheControl:'3600', upsert:false, contentType:file.type
- });
- if (error) throw error;
- return path;
+  if (!file) return null;
+  if (!file.type.startsWith('image/')) throw new Error('Lütfen bir görsel dosyası seçin.');
+  if (file.size > 5 * 1024 * 1024) throw new Error('Fotoğraf en fazla 5 MB olabilir.');
+  const ext = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g,'') || 'jpg';
+  const path = `${currentBusiness.id}/${crypto.randomUUID()}.${ext}`;
+  const { error } = await supabaseClient.storage.from(STORAGE_BUCKET).upload(path, file, {
+    cacheControl:'3600', upsert:false, contentType:file.type
+  });
+  if (error) throw error;
+  return path;
 }
 
 $('login-form').addEventListener('submit', async event => {
- event.preventDefault();
- const button = $('login-button');
- setBusy(button, true, 'Giriş yapılıyor…');
- showStatus('login-status', '');
- const { data, error } = await supabaseClient.auth.signInWithPassword({
-  email:$('login-email').value.trim(),
-  password:$('login-password').value
- });
- if (error) {
-  showStatus('login-status', 'Giriş başarısız: ' + error.message, true);
+  event.preventDefault();
+  const button = $('login-button');
+  setBusy(button, true, 'Giriş yapılıyor…');
+  showStatus('login-status', '');
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
+    email:$('login-email').value.trim(),
+    password:$('login-password').value
+  });
+  if (error) {
+    showStatus('login-status', 'Giriş başarısız: ' + error.message, true);
+    setBusy(button, false);
+    return;
+  }
+  await startApp(data.session);
   setBusy(button, false);
-  return;
- }
- await startApp(data.session);
- setBusy(button, false);
 });
 
 $('logout-btn').addEventListener('click', async () => {
- const { error } = await supabaseClient.auth.signOut();
- if (error) { showStatus('app-status', 'Çıkış yapılamadı: ' + error.message, true); return; }
- currentSession = null; businesses=[]; currentBusiness=null; products=[];
- $('app-view').hidden = true; $('accountbar').hidden = true; $('login-view').hidden = false;
- $('login-password').value = '';
+  const { error } = await supabaseClient.auth.signOut();
+  if (error) { showStatus('app-status', 'Çıkış yapılamadı: ' + error.message, true); return; }
+  currentSession = null; businesses=[]; currentBusiness=null; products=[];
+  $('app-view').hidden = true; $('accountbar').hidden = true; $('login-view').hidden = false;
+  $('login-password').value = '';
 });
 
 $('product-form').addEventListener('submit', async event => {
- event.preventDefault();
- if (!currentBusiness) { showStatus('app-status','Önce bir işletme seçilmelidir.',true); return; }
- const button = $('save-product');
- setBusy(button,true,'Buluta kaydediliyor…');
- showStatus('app-status','');
- let imagePath = null;
- try {
-  imagePath = await uploadPhoto($('photo').files[0]);
-  const payload = {
-   business_id:currentBusiness.id,
-   name:$('name').value.trim(),
-   code:$('code').value.trim() || null,
-   category:$('category').value,
-   description:$('details').value.trim() || null,
-   price:$('price').value === '' ? null : Number($('price').value),
-   image_url:imagePath
-  };
-  const { error } = await supabaseClient.from('products').insert(payload);
-  if (error) {
-   if (imagePath) await supabaseClient.storage.from(STORAGE_BUCKET).remove([imagePath]);
-   throw error;
-  }
-  event.target.reset();
-  await loadProducts();
-  showStatus('app-status','Ürün başarıyla buluta kaydedildi.');
- } catch (error) {
-  showStatus('app-status','Kayıt başarısız: ' + (error.message || String(error)),true);
- } finally { setBusy(button,false); }
+  event.preventDefault();
+  if (!currentBusiness) { showStatus('app-status','Önce bir işletme seçilmelidir.',true); return; }
+  const button = $('save-product');
+  setBusy(button,true,'Buluta kaydediliyor…');
+  showStatus('app-status','');
+  diagLines = [];
+  const t0 = Date.now();
+  const el = () => ((Date.now()-t0)/1000).toFixed(1) + ' sn';
+  let imagePath = null;
+  try {
+    diag('İşletme: ' + currentBusiness.name + ' (' + currentBusiness.id + ')');
+    diag('1/4 Oturum kontrol ediliyor…');
+    const { data: sd, error: se } = await withTimeout(supabaseClient.auth.getSession(), 10000, 'Oturum kontrolü');
+    if (se) throw se;
+    if (!sd.session) throw new Error('Oturum bulunamadı. Çıkış yapıp tekrar giriş yapın.');
+    diag('1/4 Oturum tamam (' + el() + ')');
+
+    const file = $('photo').files[0];
+    if (file) {
+      diag('2/4 Fotoğraf yükleniyor (' + Math.round(file.size/1024) + ' KB)…');
+      imagePath = await withTimeout(uploadPhoto(file), 30000, 'Fotoğraf yükleme');
+      diag('2/4 Fotoğraf yüklendi (' + el() + ')');
+    } else {
+      diag('2/4 Fotoğraf seçilmedi, adım atlandı');
+    }
+
+    const payload = {
+      business_id:currentBusiness.id,
+      name:$('name').value.trim(),
+      code:$('code').value.trim() || null,
+      category:$('category').value,
+      description:$('details').value.trim() || null,
+      price:$('price').value === '' ? null : Number($('price').value),
+      image_url:imagePath
+    };
+    diag('3/4 Veritabanına kaydediliyor…');
+    const { data: row, error } = await withTimeout(
+      supabaseClient.from('products').insert(payload).select('id').single(), 20000, 'Veritabanı kaydı');
+    if (error) {
+      if (imagePath) await supabaseClient.storage.from(STORAGE_BUCKET).remove([imagePath]).catch(() => {});
+      throw error;
+    }
+    diag('3/4 Kayıt veritabanında oluştu, id: ' + row.id + ' (' + el() + ')');
+
+    event.target.reset();
+    diag('4/4 Ürün listesi yenileniyor…');
+    const listed = await loadProducts();
+    diag('4/4 Liste ' + (listed ? 'yenilendi' : 'YENİLENEMEDİ') + ' (' + el() + ')');
+    if (listed) showStatus('app-status','Ürün başarıyla buluta kaydedildi.');
+    else showStatus('app-status','Ürün kaydedildi ancak liste yenilenemedi. Sayfayı yenileyin.',true);
+  } catch (error) {
+    diag('HATA: ' + errText(error));
+    showStatus('app-status','Kayıt başarısız: ' + errText(error),true);
+  } finally { setBusy(button,false); }
 });
 
 async function deleteProduct(id) {
- const product = products.find(p => p.id === id);
- if (!product || !confirm('“' + product.name + '” ürününü silmek istiyor musunuz?')) return;
- const { error } = await supabaseClient.from('products').delete().eq('id',id).eq('business_id',currentBusiness.id);
- if (error) { showStatus('app-status','Ürün silinemedi: ' + error.message,true); return; }
- if (product.image_url) {
-  const { error: storageError } = await supabaseClient.storage.from(STORAGE_BUCKET).remove([product.image_url]);
-  if (storageError) console.warn('Fotoğraf silinemedi:',storageError.message);
- }
- await loadProducts();
- showStatus('app-status','Ürün silindi.');
+  const product = products.find(p => p.id === id);
+  if (!product || !confirm('“' + product.name + '” ürününü silmek istiyor musunuz?')) return;
+  const { error } = await supabaseClient.from('products').delete().eq('id',id).eq('business_id',currentBusiness.id);
+  if (error) { showStatus('app-status','Ürün silinemedi: ' + errText(error),true); return; }
+  if (product.image_url) {
+    const { error: storageError } = await supabaseClient.storage.from(STORAGE_BUCKET).remove([product.image_url]);
+    if (storageError) console.warn('Fotoğraf silinemedi:',storageError.message);
+  }
+  await loadProducts();
+  showStatus('app-status','Ürün silindi.');
 }
 
 $('import-local').addEventListener('click', async () => {
- let oldProducts = [];
- try { oldProducts = JSON.parse(localStorage.getItem(LEGACY_KEY) || '[]'); }
- catch { showStatus('app-status','Bu tarayıcıdaki eski ürün verisi okunamadı.',true); return; }
- if (!Array.isArray(oldProducts) || !oldProducts.length) {
-  showStatus('app-status','Bu tarayıcıda aktarılacak eski ürün bulunamadı.');
-  return;
- }
- if (!confirm(oldProducts.length + ' eski ürün seçili işletmeye aktarılacak. Mevcut tarayıcı kayıtları silinmeyecek. Devam edilsin mi?')) return;
- const button = $('import-local');
- setBusy(button,true,'Eski ürünler aktarılıyor…');
- let success=0, failed=0;
- for (const old of oldProducts) {
-  try {
-   let imagePath=null;
-   if (old.photo && typeof old.photo === 'string' && old.photo.startsWith('data:')) {
-    const response = await fetch(old.photo);
-    const blob = await response.blob();
-    const file = new File([blob], 'legacy-image.' + ((blob.type.split('/')[1] || 'jpeg').replace('jpeg','jpg')), {type:blob.type || 'image/jpeg'});
-    imagePath = await uploadPhoto(file);
-   }
-   const payload = {
-    business_id:currentBusiness.id,
-    name:String(old.name || 'İsimsiz ürün').slice(0,80),
-    code:String(old.code || '').slice(0,40) || null,
-    category:String(old.category || 'Diğer'),
-    description:String(old.details || '') || null,
-    price:old.price === '' || old.price == null ? null : Number(old.price),
-    image_url:imagePath
-   };
-   const { error } = await supabaseClient.from('products').insert(payload);
-   if (error) throw error;
-   success++;
-  } catch (e) { failed++; console.error('Eski ürün aktarılamadı:',e); }
- }
- await loadProducts();
- setBusy(button,false);
- showStatus('app-status',`Aktarım tamamlandı. Başarılı: ${success}, başarısız: ${failed}. Eski tarayıcı kayıtları korunuyor.${failed ? ' Hatalar için Console kaydını inceleyin.' : ''}`,failed>0);
+  let oldProducts = [];
+  try { oldProducts = JSON.parse(localStorage.getItem(LEGACY_KEY) || '[]'); }
+  catch { showStatus('app-status','Bu tarayıcıdaki eski ürün verisi okunamadı.',true); return; }
+  if (!Array.isArray(oldProducts) || !oldProducts.length) {
+    showStatus('app-status','Bu tarayıcıda aktarılacak eski ürün bulunamadı.');
+    return;
+  }
+  if (!confirm(oldProducts.length + ' eski ürün seçili işletmeye aktarılacak. Mevcut tarayıcı kayıtları silinmeyecek. Devam edilsin mi?')) return;
+  const button = $('import-local');
+  setBusy(button,true,'Eski ürünler aktarılıyor…');
+  let success=0, failed=0;
+  for (const old of oldProducts) {
+    try {
+      let imagePath=null;
+      if (old.photo && typeof old.photo === 'string' && old.photo.startsWith('data:')) {
+        const response = await fetch(old.photo);
+        const blob = await response.blob();
+        const file = new File([blob], 'legacy-image.' + ((blob.type.split('/')[1] || 'jpeg').replace('jpeg','jpg')), {type:blob.type || 'image/jpeg'});
+        imagePath = await uploadPhoto(file);
+      }
+      const payload = {
+        business_id:currentBusiness.id,
+        name:String(old.name || 'İsimsiz ürün').slice(0,80),
+        code:String(old.code || '').slice(0,40) || null,
+        category:String(old.category || 'Diğer'),
+        description:String(old.details || '') || null,
+        price:old.price === '' || old.price == null ? null : Number(old.price),
+        image_url:imagePath
+      };
+      const { error } = await supabaseClient.from('products').insert(payload);
+      if (error) throw error;
+      success++;
+    } catch (e) { failed++; console.error('Eski ürün aktarılamadı:',e); }
+  }
+  await loadProducts();
+  setBusy(button,false);
+  showStatus('app-status',`Aktarım tamamlandı. Başarılı: ${success}, başarısız: ${failed}. Eski tarayıcı kayıtları korunuyor.${failed ? ' Hatalar için Console kaydını inceleyin.' : ''}`,failed>0);
 });
 
 function printCatalog() {
- if (!products.length) { alert('PDF oluşturmak için önce ürün ekleyin.'); return; }
- window.print();
+  if (!products.length) { alert('PDF oluşturmak için önce ürün ekleyin.'); return; }
+  window.print();
 }
 $('pdf-button').addEventListener('click',printCatalog);
 $('hero-pdf').addEventListener('click',printCatalog);
 $('focus-product').addEventListener('click',()=>$('name').focus());
 
 (async function init() {
- const { data, error } = await supabaseClient.auth.getSession();
- if (error) { showStatus('login-status','Oturum kontrol edilemedi: '+error.message,true); return; }
- if (data.session) await startApp(data.session);
+  try {
+    const { data, error } = await withTimeout(supabaseClient.auth.getSession(), 10000, 'Oturum kontrolü');
+    if (error) { showStatus('login-status','Oturum kontrol edilemedi: '+errText(error),true); return; }
+    if (data.session) await startApp(data.session);
+  } catch (e) { showStatus('login-status','Oturum kontrol edilemedi: '+errText(e),true); }
 })();
 </script>
 </body>
